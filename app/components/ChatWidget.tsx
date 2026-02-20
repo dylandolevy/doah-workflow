@@ -5,23 +5,20 @@ import React, { useState, Suspense, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { XMarkIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
 
-// Lazy-load the actual chat component (MyChat).
 const MyChat = dynamic(() => import('./MyChat'), { ssr: false });
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [mountedOnce, setMountedOnce] = useState(false);
-  const [attention, setAttention] = useState(false); // small demo state (pulse)
+  const [attention, setAttention] = useState(false);
 
   useEffect(() => {
-    // restore preference
     const saved = typeof window !== 'undefined' ? localStorage.getItem('doah_chat_open') : null;
     if (saved === '1') {
       setOpen(true);
       setMountedOnce(true);
     }
 
-    // demo: trigger attention pulse once after load (remove in prod)
     const t = setTimeout(() => setAttention(true), 3000);
     const t2 = setTimeout(() => setAttention(false), 8000);
     return () => {
@@ -35,7 +32,6 @@ export default function ChatWidget() {
     if (open) setMountedOnce(true);
   }, [open]);
 
-  // keyboard toggle with "c"
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key.toLowerCase() === 'c') setOpen((s) => !s);
@@ -46,19 +42,29 @@ export default function ChatWidget() {
 
   return (
     <div aria-live="polite">
-      {/* Container: change classes here to move widget */}
-      <div className="fixed right-6 bottom-6 z-50"> {/* <-- bottom-right by default */}
-        {/* Panel: slide & fade animation */}
+      {/* fixed container. increase bottom spacing so panel clears the toggle button */}
+      <div className="fixed right-6 bottom-6 z-50 pointer-events-none">
+        {/* Panel wrapper: keep a fixed width and bottom offset.
+            pointer-events enabled only when open so clicks pass through when closed */}
         <div
           id="doah-chat-panel"
-          className={`transform transition-all duration-300 ease-in-out origin-bottom-right
-            ${open ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto' : 'translate-y-6 opacity-0 scale-95 pointer-events-none'}`}
-          style={{ width: open ? 380 : 0 }}
+          className={`pointer-events-auto transform transition-all duration-300 ease-in-out origin-bottom-right
+            ${open ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}
+          style={{
+            width: 380,
+            // ensure the panel sits above the toggle button by adding extra bottom spacing
+            marginBottom: 72, // leave room for the button (adjust if you change button size)
+            maxHeight: 'calc(100vh - 120px)', // avoids being taller than the viewport
+          }}
         >
-          <div className="w-[380px] h-[640px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+          <div
+            className="w-[380px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            style={{ height: '640px', maxHeight: 'calc(100vh - 120px)' }}
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-green-600 text-white">
+                {/* header icon background updated to match the button color */}
+                <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[#3C6E69] text-white">
                   <ChatBubbleLeftRightIcon className="w-5 h-5" />
                 </div>
                 <div>
@@ -91,28 +97,26 @@ export default function ChatWidget() {
         </div>
 
         {/* Floating toggle button */}
-        <button
-          aria-expanded={open}
-          aria-controls="doah-chat-panel"
-          onClick={() => setOpen((s) => !s)}
-          className={`
-            mt-4 inline-flex items-center justify-center w-14 h-14 rounded-full shadow-lg
-            bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500
-            transform transition-transform duration-200
-            ${open ? 'scale-110' : 'scale-100'}
-            ${attention ? 'animate-pulse-slow' : ''}
-          `}
-          title="Open chat (press 'c')"
-        >
-          {/* rotate/transition the icon on open */}
-          <span className={`inline-block transform transition-transform duration-300 ${open ? 'rotate-45' : 'rotate-0'}`}>
-            {!open ? (
-              <ChatBubbleLeftRightIcon className="w-6 h-6" />
-            ) : (
-              <XMarkIcon className="w-6 h-6" />
-            )}
-          </span>
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+          <button
+            aria-expanded={open}
+            aria-controls="doah-chat-panel"
+            onClick={() => setOpen((s) => !s)}
+            className={`
+              inline-flex items-center justify-center w-14 h-14 rounded-full shadow-lg
+              bg-[#3C6E69] text-white hover:bg-[#335f5a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3C6E69]
+              transform transition-transform duration-200
+              ${open ? 'scale-110' : 'scale-100'}
+              ${attention ? 'animate-pulse-slow' : ''}
+            `}
+            title="Open chat (press 'c')"
+            style={{ pointerEvents: 'auto' }} // allow button clicks even though outer container is pointer-events-none
+          >
+            <span className={`inline-block transform transition-transform duration-300 ${open ? 'rotate-45' : 'rotate-0'}`}>
+              {!open ? <ChatBubbleLeftRightIcon className="w-6 h-6" /> : <XMarkIcon className="w-6 h-6" />}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   );
