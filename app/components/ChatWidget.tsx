@@ -44,22 +44,23 @@ export default function ChatWidget() {
     <div aria-live="polite">
       {/* fixed container. increase bottom spacing so panel clears the toggle button */}
       <div className="fixed right-6 bottom-6 z-50 pointer-events-none">
-        {/* Panel wrapper: keep a fixed width and bottom offset.
-            pointer-events enabled only when open so clicks pass through when closed */}
+        {/* Panel wrapper: positioned absolute within the fixed container so we can place it above the button */}
         <div
           id="doah-chat-panel"
           className={`pointer-events-auto transform transition-all duration-300 ease-in-out origin-bottom-right
             ${open ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}
           style={{
+            position: 'absolute',
             width: 380,
-            // ensure the panel sits above the toggle button by adding extra bottom spacing
-            marginBottom: 96, // leave room for the button (adjust if you change button size)
+            // Use bottom/right so the panel is placed above the button reliably
+            bottom: 96, // leave room for the button (adjust if you change button size)
+            right: 24,  // keep same horizontal offset as parent right-6
             maxHeight: 'calc(100vh - 120px)', // avoids being taller than the viewport
           }}
         >
           <div
-            className="w-[380px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col"
-            style={{ height: '640px', maxHeight: 'calc(100vh - 120px)' }}
+            className="w-[380px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col z-[60]"
+            style={{ height: '640px', maxHeight: 'calc(100vh - 120px)', paddingBottom: 20 }} // extra bottom padding avoids tight overlap
           >
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-3">
@@ -110,7 +111,7 @@ export default function ChatWidget() {
               ${attention ? 'animate-pulse-slow' : ''}
             `}
             title="Open chat (press 'c')"
-            style={{ pointerEvents: 'auto' }} // allow button clicks even though outer container is pointer-events-none
+            style={{ pointerEvents: 'auto', zIndex: 50 }} // keep lower than panel z-[60]
           >
             <span className={`inline-block transform transition-transform duration-300 ${open ? 'rotate-45' : 'rotate-0'}`}>
               {!open ? <ChatBubbleLeftRightIcon className="w-6 h-6" /> : <XMarkIcon className="w-6 h-6" />}
