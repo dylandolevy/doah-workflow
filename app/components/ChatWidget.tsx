@@ -5,20 +5,29 @@ import React, { useState, Suspense, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { XMarkIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
 
-// Lazy-load the actual chat component (MyChat). Replace path if your MyChat is elsewhere.
+// Lazy-load the actual chat component (MyChat).
 const MyChat = dynamic(() => import('./MyChat'), { ssr: false });
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [mountedOnce, setMountedOnce] = useState(false);
+  const [attention, setAttention] = useState(false); // small demo state (pulse)
 
-  // remember preference in localStorage (optional)
   useEffect(() => {
-    const saved = localStorage.getItem('doah_chat_open');
+    // restore preference
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('doah_chat_open') : null;
     if (saved === '1') {
       setOpen(true);
       setMountedOnce(true);
     }
+
+    // demo: trigger attention pulse once after load (remove in prod)
+    const t = setTimeout(() => setAttention(true), 3000);
+    const t2 = setTimeout(() => setAttention(false), 8000);
+    return () => {
+      clearTimeout(t);
+      clearTimeout(t2);
+    };
   }, []);
 
   useEffect(() => {
@@ -37,17 +46,16 @@ export default function ChatWidget() {
 
   return (
     <div aria-live="polite">
-      {/* Container */}
-      <div className="fixed right-6 bottom-6 z-50">
-        {/* Expanded panel */}
+      {/* Container: change classes here to move widget */}
+      <div className="fixed right-6 bottom-6 z-50"> {/* <-- bottom-right by default */}
+        {/* Panel: slide & fade animation */}
         <div
-          className={`transform transition-all duration-300 ease-in-out ${
-            open ? 'opacity-100 translate-y-0' : 'opacity-0 pointer-events-none translate-y-6'
-          }`}
+          id="doah-chat-panel"
+          className={`transform transition-all duration-300 ease-in-out origin-bottom-right
+            ${open ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto' : 'translate-y-6 opacity-0 scale-95 pointer-events-none'}`}
           style={{ width: open ? 380 : 0 }}
         >
           <div className="w-[380px] h-[640px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-            {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-green-600 text-white">
@@ -61,7 +69,7 @@ export default function ChatWidget() {
 
               <div className="flex items-center gap-2">
                 <button
-                  aria-label={open ? 'Close chat' : 'Open chat'}
+                  aria-label="Close chat"
                   onClick={() => setOpen(false)}
                   className="p-2 rounded-md hover:bg-gray-100"
                 >
@@ -70,7 +78,6 @@ export default function ChatWidget() {
               </div>
             </div>
 
-            {/* Body: lazy mount the chat only after first open */}
             <div className="flex-1">
               {mountedOnce ? (
                 <Suspense fallback={<div className="p-4">Loading chat…</div>}>
@@ -83,19 +90,28 @@ export default function ChatWidget() {
           </div>
         </div>
 
-        {/* Floating toggle button (always visible) */}
+        {/* Floating toggle button */}
         <button
           aria-expanded={open}
           aria-controls="doah-chat-panel"
           onClick={() => setOpen((s) => !s)}
-          className="mt-4 inline-flex items-center justify-center w-14 h-14 rounded-full shadow-lg bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          className={`
+            mt-4 inline-flex items-center justify-center w-14 h-14 rounded-full shadow-lg
+            bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500
+            transform transition-transform duration-200
+            ${open ? 'scale-110' : 'scale-100'}
+            ${attention ? 'animate-pulse-slow' : ''}
+          `}
           title="Open chat (press 'c')"
         >
-          {!open ? (
-            <ChatBubbleLeftRightIcon className="w-6 h-6" />
-          ) : (
-            <XMarkIcon className="w-6 h-6" />
-          )}
+          {/* rotate/transition the icon on open */}
+          <span className={`inline-block transform transition-transform duration-300 ${open ? 'rotate-45' : 'rotate-0'}`}>
+            {!open ? (
+              <ChatBubbleLeftRightIcon className="w-6 h-6" />
+            ) : (
+              <XMarkIcon className="w-6 h-6" />
+            )}
+          </span>
         </button>
       </div>
     </div>
