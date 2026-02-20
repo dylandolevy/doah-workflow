@@ -42,9 +42,9 @@ export default function ChatWidget() {
 
   return (
     <div aria-live="polite">
-      {/* fixed container. increase bottom spacing so panel clears the toggle button */}
+      {/* fixed container */}
       <div className="fixed right-6 bottom-6 z-50 pointer-events-none">
-        {/* Panel wrapper: positioned absolute within the fixed container so we can place it above the button */}
+        {/* Panel: fixed positioning so it sits above the button reliably */}
         <div
           id="doah-chat-panel"
           className={`pointer-events-auto transform transition-all duration-300 ease-in-out origin-bottom-right
@@ -52,19 +52,25 @@ export default function ChatWidget() {
           style={{
             position: 'absolute',
             width: 380,
-            // Use bottom/right so the panel is placed above the button reliably
-            bottom: 96, // leave room for the button (adjust if you change button size)
-            right: 24,  // keep same horizontal offset as parent right-6
-            maxHeight: 'calc(100vh - 120px)', // avoids being taller than the viewport
+            bottom: 96, // space for the button
+            right: 24,
+            // Use a viewport-based max height so the panel grows/shrinks with the viewport
+            maxHeight: 'calc(100vh - 120px)',
           }}
         >
+          {/* Outer shell: keep overflow visible here so footer isn't clipped by rounded corners */}
           <div
-            className="w-[380px] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col z-[60]"
-            style={{ height: '640px', maxHeight: 'calc(100vh - 120px)', paddingBottom: 20 }} // extra bottom padding avoids tight overlap
+            className="w-[380px] bg-white rounded-2xl shadow-2xl flex flex-col z-[60]"
+            style={{
+              // full height but constrained by parent maxHeight
+              height: '100%',
+              maxHeight: 'calc(100vh - 120px)',
+              overflow: 'visible',
+            }}
           >
+            {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-3">
-                {/* header icon background updated to match the button color */}
                 <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[#3C6E69] text-white">
                   <ChatBubbleLeftRightIcon className="w-5 h-5" />
                 </div>
@@ -85,14 +91,59 @@ export default function ChatWidget() {
               </div>
             </div>
 
-            <div className="flex-1">
+            {/* Main: chat messages area (scrollable) */}
+            {/* NOTE: the chat list should live here and be allowed to scroll independently */}
+            <div
+              className="flex-1 overflow-auto"
+              style={{
+                // Make it fill remaining vertical space (header + footer reserved),
+                // height will be automatically constrained by the outer maxHeight.
+                padding: '16px',
+              }}
+            >
               {mountedOnce ? (
+                // If MyChat renders its own input/footer, it should be removed or adjusted:
+                // Ideally MyChat renders only the message list here and NOT the footer input.
+                // If MyChat contains the input, ensure that input is not positioned absolute
+                // outside this area — it should be inside a footer we control below.
                 <Suspense fallback={<div className="p-4">Loading chat…</div>}>
                   <MyChat />
                 </Suspense>
               ) : (
                 <div className="p-4 text-sm text-gray-500">Click the button to open chat</div>
               )}
+            </div>
+
+            {/* Footer: fixed-height input area that always stays visible */}
+            <div
+              className="px-4 py-3 border-t bg-white"
+              style={{
+                // fixed footer height so it never collapses
+                height: 72,
+                // add a little extra bottom padding so the rounded corner doesn't overlap input
+                paddingBottom: 18,
+              }}
+            >
+              {/* If MyChat already provides the input, move/duplicate that input into this area.
+                  For demonstration we show a simple input bar here. */}
+              <div className="relative">
+                <input
+                  aria-label="Message the AI"
+                  type="text"
+                  className="w-full h-10 rounded-full border border-gray-200 px-4 focus:outline-none focus:ring-2 focus:ring-[#3C6E69]"
+                  placeholder="Message the AI"
+                  // ensure the input is not covered by anything and is clickable
+                  style={{ zIndex: 80 }}
+                />
+                {/* small send button in corner (visual match to screenshot) */}
+                <button
+                  aria-label="Send"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#111827] text-white"
+                  style={{ zIndex: 85 }}
+                >
+                  ↑
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -111,7 +162,7 @@ export default function ChatWidget() {
               ${attention ? 'animate-pulse-slow' : ''}
             `}
             title="Open chat (press 'c')"
-            style={{ pointerEvents: 'auto', zIndex: 50 }} // keep lower than panel z-[60]
+            style={{ pointerEvents: 'auto', zIndex: 50 }}
           >
             <span className={`inline-block transform transition-transform duration-300 ${open ? 'rotate-45' : 'rotate-0'}`}>
               {!open ? <ChatBubbleLeftRightIcon className="w-6 h-6" /> : <XMarkIcon className="w-6 h-6" />}
