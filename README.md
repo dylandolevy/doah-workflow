@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DoAH AI Chatbot Demo
 
-## Getting Started
+## Overview
 
-First, run the development server:
+This repository contains a demo web application showcasing an AI-powered assistant built for Duke University's DoAH.
+
+The application integrates an OpenAI Agent Builder workflow into a Next.js frontend using ChatKit and is deployed on Vercel for demonstration purposes.
+
+The goal of this project is to demonstrate how a structured AI workflow can be embedded into a web interface while minimizing hallucinations.
+
+---
+
+## Workflow Design
+
+The underlying OpenAI Agent workflow is designed to:
+
+- Prioritize **file-based search** as the primary information source  
+- Only use **web search** when file search does not provide sufficient information  
+- Provide responses grounded in available documentation  
+- Reduce speculative or unsupported outputs  
+
+This retrieval-first approach ensures answers remain accurate, verifiable, and grounded in approved materials.
+
+The workflow logic is fully implemented in OpenAI Agent Builder, while this repository focuses on providing a frontend interface for interacting with that workflow.
+
+---
+
+## Tech Stack
+
+- **Next.js (App Router)**
+- **Tailwind CSS**
+- **OpenAI Agent Builder**
+- **OpenAI ChatKit**
+- **Vercel (hosting + serverless functions)**
+
+---
+
+## Architecture
+
+High-level request flow:
+
+Browser  
+→ `/api/chatkit/session` (Next.js server route)  
+→ OpenAI ChatKit session creation  
+→ OpenAI Agent workflow  
+→ Response streamed back to client  
+
+### Key Design Notes
+
+- OpenAI API keys are handled **server-side only**
+- The client receives a short-lived `client_secret` for ChatKit sessions
+- The workflow and retrieval logic live entirely within OpenAI Agent Builder
+- The frontend serves purely as a demo interface
+
+---
+
+## Features
+
+- Collapsible floating chat widget  
+- Secure server-side session handling  
+- Workflow-driven responses  
+- Grounded answers using structured retrieval  
+- Minimal UI for rapid testing and iteration  
+
+---
+
+## Running Locally
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Create Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```
+OPENAI_API_KEY=your_openai_api_key
+NEXT_PUBLIC_CHATKIT_WORKFLOW_ID=your_workflow_id
+```
+
+### 3. Start the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 4. Open in Browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+This application is deployed on **Vercel**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To deploy your own version:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Push the repository to GitHub  
+2. Import the repository into Vercel  
+3. Add environment variables:
+   - `OPENAI_API_KEY`
+   - `NEXT_PUBLIC_CHATKIT_WORKFLOW_ID`
+4. Deploy  
 
-## Deploy on Vercel
+For production domains, ensure the domain is allowlisted in the OpenAI organization security settings if required.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
