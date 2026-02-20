@@ -1,2 +1,7 @@
 [00:07:07.803] Server  LOG     ○ Compiling /_not-found/page ...
 [00:07:10.149] Server  LOG       Reload env: .env.local
+[00:08:39.654] Browser ERROR   Failed to fetch RSC payload for http://localhost:3001/. Falling back to browser navigation. {}
+[00:08:39.654] Browser ERROR   Failed to fetch RSC payload for http://localhost:3001/. Falling back to browser navigation. {}
+[00:08:39.654] Browser ERROR   Failed to fetch RSC payload for http://localhost:3001/. Falling back to browser navigation. {}
+[00:08:39.654] Browser ERROR   Failed to fetch RSC payload for http://localhost:3001/. Falling back to browser navigation. {}
+[00:08:39.654] Browser ERROR   Failed to fetch RSC payload for http://localhost:3001/. Falling back to browser navigation. {}
