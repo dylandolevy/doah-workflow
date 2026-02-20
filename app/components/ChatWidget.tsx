@@ -53,7 +53,7 @@ export default function ChatWidget() {
           style={{
             width: 380,
             // ensure the panel sits above the toggle button by adding extra bottom spacing
-            marginBottom: 72, // leave room for the button (adjust if you change button size)
+            marginBottom: 96, // leave room for the button (adjust if you change button size)
             maxHeight: 'calc(100vh - 120px)', // avoids being taller than the viewport
           }}
         >
