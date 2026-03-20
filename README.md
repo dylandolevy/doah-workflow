@@ -4,8 +4,6 @@
 
 This repository contains a demo web application showcasing an AI-powered assistant built for Duke University's DoAH.
 
-The application integrates an OpenAI Agent Builder workflow into a Next.js frontend using ChatKit and is deployed on Vercel for demonstration purposes.
-
 The goal of this project is to demonstrate how a structured AI workflow can be embedded into a web interface while minimizing hallucinations.
 
 ---
@@ -15,13 +13,13 @@ The goal of this project is to demonstrate how a structured AI workflow can be e
 The underlying OpenAI Agent workflow is designed to:
 
 - Prioritize **file-based search** as the primary information source  
-- Only use **web search** when file search does not provide sufficient information  
+- Only use **web search** when user query is detected to have information not present in the file search
 - Provide responses grounded in available documentation  
 - Reduce speculative or unsupported outputs  
 
 This retrieval-first approach ensures answers remain accurate, verifiable, and grounded in approved materials.
 
-The workflow logic is fully implemented in OpenAI Agent Builder, while this repository focuses on providing a frontend interface for interacting with that workflow.
+The workflow logic is fully implemented in OpenAI's Agent Builder, while this repository focuses on providing a frontend interface for interacting with that workflow.
 
 ---
 
