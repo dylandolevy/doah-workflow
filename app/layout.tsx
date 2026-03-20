@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "DoAH Chatbot",
-  description: "AI-powered Chatbot for DoAH — demo built with OpenAI ChatKit",
+  description: "OpenAI Workflow-powered chatbot demo built with Next.js 13 and Tailwind CSS",
 };
 
 export default function RootLayout({
