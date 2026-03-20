@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains a demo web application showcasing an AI-powered assistant built for Duke University's DoAH.
+This repository contains a demo widget web application showcasing an AI-powered assistant built for Duke University's DoAH. This widget is connected to a vector store containing 
 
 The goal of this project is to demonstrate how a structured AI workflow can be embedded into a web interface while minimizing hallucinations.
 
